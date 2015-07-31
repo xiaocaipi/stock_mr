@@ -16,7 +16,7 @@ import org.apache.hadoop.hbase.HTableDescriptor
 import org.apache.hadoop.hbase.HColumnDescriptor
 import com.stock.util.ScalaCommonUtil
 
-object StockRT {
+object StockRT2 {
 
 
   def main(args: Array[String]) {
@@ -33,10 +33,10 @@ object StockRT {
     sparkConf.set("spark.yarn.keytab", keytabPath)
     sparkConf.set("spark.yarn.principal", principal)
    
-    
+    initialHbase()
     val ssc = new StreamingContext(sparkConf, Seconds(1))
  
-// 	initialHbase()
+ 	
 
     val topicMap = topics.split(",").map((_, numThreads.toInt)).toMap
     val lines = KafkaUtils.createStream(ssc, zkQuorum, group, topicMap).map(_._2)
@@ -44,7 +44,7 @@ object StockRT {
 
     words.foreachRDD(rdd => {
       rdd.foreach(record => {
-        HbaseService.insertStockRTData(record)
+        println(record)
       })
     })
     ssc.start()

@@ -14,6 +14,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import com.stock.dto.StockRealTimeData;
 import com.stock.util.CommonUtil;
+import com.stock.util.ScalaCommonUtil;
 
 public class HbaseClientUtil {
 	
@@ -22,10 +23,7 @@ public class HbaseClientUtil {
 	        String tableName = tableTmp ;
 	        String tableFamily = familyTmp;
 
-	        Configuration conf = HBaseConfiguration.create();
-	        conf.set("hbase.rootdir", "hdfs://hadoop3:8020/hbase");
-	        conf.set("hbase.zookeeper.quorum", "hadoop3,hadoop5,hadoop2,hadoop1,hadoop4");
-	        conf.set(TableInputFormat.INPUT_TABLE, tableName);
+	        Configuration conf = ScalaCommonUtil.getconf();
 
 
 	        if(obj == null){
