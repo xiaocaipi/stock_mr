@@ -17,76 +17,125 @@ import com.stock.util.CommonUtil;
 import com.stock.util.ScalaCommonUtil;
 
 public class HbaseClientUtil {
-	
-	 public static String insertByObject(Object obj,String tableTmp,String familyTmp) throws Exception {
 
-	        String tableName = tableTmp ;
-	        String tableFamily = familyTmp;
+	public static String insertByObject(Object obj, String tableTmp,
+			String familyTmp) throws Exception {
 
-	        Configuration conf = ScalaCommonUtil.getconf();
+		String tableName = tableTmp;
+		String tableFamily = familyTmp;
 
+		Configuration conf = ScalaCommonUtil.getconf();
 
-	        if(obj == null){
-	            return "-1";
-	        }
-	        String rowKey = CommonUtil.obj2string(CommonUtil.getter(obj, "rowkey"));
-	        if ("-1".equals(rowKey)) {
-	            return "-1";
-	        }
-	        HTable table = new HTable(conf, tableName);
-	        Put put = new Put(Bytes.toBytes(rowKey));
-	        Field[] childFields = obj.getClass().getDeclaredFields();
-	        Field[] superFields = obj.getClass().getSuperclass().getDeclaredFields();
-	        List<Field> fields = new ArrayList<Field>();
-	        for(Field field:childFields){
-	        	fields.add(field);
-	        }
-	        for(Field field:superFields){
-	        	fields.add(field);
-	        }
-	        
-	        for (int i = 0; i < fields.size(); i++) {
-	        	 Field field = fields.get(i);
-	        	 field.setAccessible(true);
-	           
-	            String filedName = field.getName();
-	            Class<?> type = field.getType();
-	            String fieldSimpleTypeName = type.getSimpleName();
-	            Object fieldValueTmp = CommonUtil.getter(obj, filedName);
-	            if ("Long".equals(fieldSimpleTypeName)) {
-	                Long fieldValue = CommonUtil.obj2long(fieldValueTmp);
-	                if (fieldValue != null) {
-	                    put.add(Bytes.toBytes(tableFamily), Bytes.toBytes(filedName), Bytes.toBytes(fieldValue));
-	                }
-	            } else if ("String".equals(fieldSimpleTypeName)) {
-	                String fieldValue = CommonUtil.obj2string(fieldValueTmp);
-	                if (StringUtils.isNotEmpty(fieldValue) && !fieldValue.equals("-1")) {
-	                    put.add(Bytes.toBytes(tableFamily), Bytes.toBytes(filedName), Bytes.toBytes(fieldValue));
-	                }
-	            }else if ("Double".equals(fieldSimpleTypeName)) {
-	                Double fieldValue = CommonUtil.obj2Double(fieldValueTmp);
-	                if (fieldValue!=null) {
-	                    put.add(Bytes.toBytes(tableFamily), Bytes.toBytes(filedName), Bytes.toBytes(fieldValue));
-	                }
-	            }
-	        }
-	        table.put(put);
-	        table.flushCommits();
-	        table.close();
-	        return "1";
-	    }
-	 
-	 
-	 public static void main(String[] args) {
-		 StockRealTimeData stockRealTimeData =new  StockRealTimeData();
-		 stockRealTimeData.setRowkey("11");
-		 try {
-			insertByObject(stockRealTimeData, "aa", "aa");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (obj == null) {
+			return "-1";
 		}
-		
+		String rowKey = CommonUtil.obj2string(CommonUtil.getter(obj, "rowkey"));
+		if ("-1".equals(rowKey)) {
+			return "-1";
+		}
+		HTable table = new HTable(conf, tableName);
+		Put put = new Put(Bytes.toBytes(rowKey));
+		Field[] childFields = obj.getClass().getDeclaredFields();
+		Field[] superFields = obj.getClass().getSuperclass()
+				.getDeclaredFields();
+		List<Field> fields = new ArrayList<Field>();
+		for (Field field : childFields) {
+			fields.add(field);
+		}
+		for (Field field : superFields) {
+			fields.add(field);
+		}
+
+		for (int i = 0; i < fields.size(); i++) {
+			Field field = fields.get(i);
+			field.setAccessible(true);
+
+			String filedName = field.getName();
+			Class<?> type = field.getType();
+			String fieldSimpleTypeName = type.getSimpleName();
+			Object fieldValueTmp = CommonUtil.getter(obj, filedName);
+			if ("Long".equals(fieldSimpleTypeName)) {
+				Long fieldValue = CommonUtil.obj2long(fieldValueTmp);
+				if (fieldValue != null) {
+					put.add(Bytes.toBytes(tableFamily),
+							Bytes.toBytes(filedName), Bytes.toBytes(fieldValue));
+				}
+			} else if ("String".equals(fieldSimpleTypeName)) {
+				String fieldValue = CommonUtil.obj2string(fieldValueTmp);
+				if (StringUtils.isNotEmpty(fieldValue)
+						&& !fieldValue.equals("-1")) {
+					put.add(Bytes.toBytes(tableFamily),
+							Bytes.toBytes(filedName), Bytes.toBytes(fieldValue));
+				}
+			} else if ("Double".equals(fieldSimpleTypeName)) {
+				Double fieldValue = CommonUtil.obj2Double(fieldValueTmp);
+				if (fieldValue != null) {
+					put.add(Bytes.toBytes(tableFamily),
+							Bytes.toBytes(filedName), Bytes.toBytes(fieldValue));
+				}
+			}
+		}
+		table.put(put);
+		table.flushCommits();
+		table.close();
+		return "1";
 	}
+
+	public static Put obj2put(Object obj, String tableTmp, String familyTmp)
+			throws Exception {
+
+		String tableName = tableTmp;
+		String tableFamily = familyTmp;
+		if (obj == null) {
+			return null;
+		}
+		String rowKey = CommonUtil.obj2string(CommonUtil.getter(obj, "rowkey"));
+		if ("-1".equals(rowKey)) {
+			return null;
+		}
+		Put put = new Put(Bytes.toBytes(rowKey));
+		Field[] childFields = obj.getClass().getDeclaredFields();
+		Field[] superFields = obj.getClass().getSuperclass()
+				.getDeclaredFields();
+		List<Field> fields = new ArrayList<Field>();
+		for (Field field : childFields) {
+			fields.add(field);
+		}
+		for (Field field : superFields) {
+			fields.add(field);
+		}
+
+		for (int i = 0; i < fields.size(); i++) {
+			Field field = fields.get(i);
+			field.setAccessible(true);
+
+			String filedName = field.getName();
+			Class<?> type = field.getType();
+			String fieldSimpleTypeName = type.getSimpleName();
+			Object fieldValueTmp = CommonUtil.getter(obj, filedName);
+			if ("Long".equals(fieldSimpleTypeName)) {
+				Long fieldValue = CommonUtil.obj2long(fieldValueTmp);
+				if (fieldValue != null) {
+					put.add(Bytes.toBytes(tableFamily),
+							Bytes.toBytes(filedName), Bytes.toBytes(fieldValue));
+				}
+			} else if ("String".equals(fieldSimpleTypeName)) {
+				String fieldValue = CommonUtil.obj2string(fieldValueTmp);
+				if (StringUtils.isNotEmpty(fieldValue)
+						&& !fieldValue.equals("-1")) {
+					put.add(Bytes.toBytes(tableFamily),
+							Bytes.toBytes(filedName), Bytes.toBytes(fieldValue));
+				}
+			} else if ("Double".equals(fieldSimpleTypeName)) {
+				Double fieldValue = CommonUtil.obj2Double(fieldValueTmp);
+				if (fieldValue != null) {
+					put.add(Bytes.toBytes(tableFamily),
+							Bytes.toBytes(filedName), Bytes.toBytes(fieldValue));
+				}
+			}
+		}
+		return put;
+	}
+
 
 }

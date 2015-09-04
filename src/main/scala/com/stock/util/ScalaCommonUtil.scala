@@ -7,6 +7,8 @@ import java.util.Locale
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.hbase.HBaseConfiguration
 import org.apache.hadoop.security.UserGroupInformation
+import org.apache.spark.SparkEnv
+import org.apache.log4j.Logger
 
 object ScalaCommonUtil {
   
@@ -17,6 +19,9 @@ object ScalaCommonUtil {
       obj.toString
   
 }
+  
+  var config:Configuration =null 
+  
   
   def getPropertyValue(key:String) :String = {
 	  	val  currentSystem =  System.getProperty("os.name")
@@ -37,6 +42,33 @@ object ScalaCommonUtil {
   }
   
   def getconf() : Configuration = {
+    
+	  if(config ==null){
+	    Logger.getRootLogger().error("getconf happen here")
+//	    val sparkConf = SparkEnv.get.conf
+	    config = HBaseConfiguration.create()
+//		val krbconfPath = getPropertyValue("krbconfPath")
+//		val principal = getPropertyValue("principal")
+//		val keytabPath = getPropertyValue("keytabPath")
+	    
+//	    val keytabPath = sparkConf.get("spark.yarn.keytab")
+//	    val principal = sparkConf.get("spark.yarn.principal")
+		config.set("hbase.zookeeper.quorum", "hadoop1,hadoop2,hadoop3,hadoop4,hadoop5")
+		config.set("hbase.zookeeper.property.clientPort", "2181")
+//		config.set("hadoop.security.authentication", "kerberos")
+//		config.set("hbase.security.authentication", "kerberos")
+//		config.set("hbase.master.kerberos.principal", "hbase/_HOST@hadoop3")
+//		config.set("hbase.regionserver.kerberos.principal", "hbase/_HOST@hadoop3")	
+//		
+//		UserGroupInformation.setConfiguration(config)
+//		UserGroupInformation.loginUserFromKeytab(principal,keytabPath)
+	  }
+		
+	    config
+}
+  
+  
+    def loin()  : Unit = {
 		val config = HBaseConfiguration.create()
 		val krbconfPath = getPropertyValue("krbconfPath")
 		val principal = getPropertyValue("principal")
@@ -51,7 +83,6 @@ object ScalaCommonUtil {
         System.setProperty("java.security.krb5.conf", krbconfPath)
 		UserGroupInformation.setConfiguration(config)
 		UserGroupInformation.loginUserFromKeytab(principal,keytabPath)
-	    config
 }
   
   def main(args: Array[String]) {

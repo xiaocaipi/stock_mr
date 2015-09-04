@@ -8,9 +8,11 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 import com.stock.hbase.HbaseService
 import com.stock.util.ScalaCommonUtil
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.storage.StorageLevel
+import scala.collection.mutable.ListBuffer
+import com.stock.dto.StockRealTimeData
+import com.stock.util.CommonUtil
 
-object StockRT {
+object StockRT3 {
 
 
   def main(args: Array[String]) {
@@ -24,8 +26,8 @@ object StockRT {
     val principal = ScalaCommonUtil.getPropertyValue("principal")
 	val keytabPath = ScalaCommonUtil.getPropertyValue("keytabPath")
 	val krbconfPath = ScalaCommonUtil.getPropertyValue("krbconfPath")
-    val sparkConf = new SparkConf().setAppName("stockRt").setMaster("local[8]")
-//    val sparkConf = new SparkConf().setAppName("stockRt")
+//    val sparkConf = new SparkConf().setAppName("stockRt").setMaster("local[8]")
+    val sparkConf = new SparkConf().setAppName("stockRt")
     
 //    sparkConf.set("java.security.krb5.realm", krbconfPath)
     System.setProperty("java.security.krb5.conf", krbconfPath)
@@ -34,24 +36,30 @@ object StockRT {
     sparkConf.set("spark.default.parallelism", "16")
     
     
-    val ssc = new StreamingContext(sparkConf, Seconds(2))
+    val ssc = new StreamingContext(sparkConf, Seconds(3))
 	  
  	
  
 // 	initialHbase()
-
+	
     val topicMap = topics.split(",").map((_, 2.toInt)).toMap
     val numStreams = 4
-    val kafkaStreams = (1 to numStreams).map { i => KafkaUtils.createStream(ssc, zkQuorum, group, topicMap,StorageLevel.MEMORY_AND_DISK).map(_._2) }
+    val kafkaStreams = (1 to numStreams).map { i => KafkaUtils.createStream(ssc, zkQuorum, group, topicMap).map(_._2) }
 	val lines = ssc.union(kafkaStreams)
-//    val lines = KafkaUtils.createStream(ssc, zkQuorum, group, topicMap).map(_._2)
-    val words = lines.flatMap(_.split(" "))
+//    val words = lines.flatMap(_.split(" "))
     
-
-    words.foreachRDD(rdd => {
-      rdd.foreach(record => {
-        HbaseService.insertStockRTData(record)
+    //dstream(lines) -->  rdds(rdd) -->partitionrdds(partitionOfRecords) -->rdd  (record)   			
+    lines.foreachRDD(rdds => {
+     
+      rdds.foreachPartition(partitionOfRecords =>{
+         var stockRealTimeDataList = new ListBuffer[StockRealTimeData]()
+         partitionOfRecords.foreach(record => {
+            var stockRealTimeData = HbaseService.convertMessage(record)
+	        stockRealTimeDataList += stockRealTimeData
+         })
+         HbaseService.insertStockRTDataList(stockRealTimeDataList)
       })
+     
     })
     ssc.start()
     ssc.awaitTermination()
