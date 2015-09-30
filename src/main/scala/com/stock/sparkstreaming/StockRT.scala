@@ -6,9 +6,9 @@ import org.apache.spark.streaming.Seconds
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.kafka.KafkaUtils
 import com.stock.hbase.HbaseService
-import com.stock.util.ScalaCommonUtil
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.storage.StorageLevel
+import util.CommonUtil
 
 object StockRT {
 
@@ -17,13 +17,13 @@ object StockRT {
 
 	  Logger.getRootLogger.setLevel(Level.ERROR)
  
-    val zkQuorum = ScalaCommonUtil.getPropertyValue("zkQuorum")
-    val topics = ScalaCommonUtil.getPropertyValue("topics")
-    val group = ScalaCommonUtil.getPropertyValue("group")
-    val numThreads = ScalaCommonUtil.getPropertyValue("numThreads")
-    val principal = ScalaCommonUtil.getPropertyValue("principal")
-	val keytabPath = ScalaCommonUtil.getPropertyValue("keytabPath")
-	val krbconfPath = ScalaCommonUtil.getPropertyValue("krbconfPath")
+    val zkQuorum = CommonUtil.getPropertyValue("zkQuorum")
+    val topics = CommonUtil.getPropertyValue("topics")
+    val group = CommonUtil.getPropertyValue("group")
+    val numThreads = CommonUtil.getPropertyValue("numThreads")
+    val principal = CommonUtil.getPropertyValue("principal")
+	val keytabPath = CommonUtil.getPropertyValue("keytabPath")
+	val krbconfPath = CommonUtil.getPropertyValue("krbconfPath")
     val sparkConf = new SparkConf().setAppName("stockRt").setMaster("local[8]")
 //    val sparkConf = new SparkConf().setAppName("stockRt")
     

@@ -3,15 +3,17 @@ package com.stock.hbase
 import com.google.gson.Gson
 import org.apache.log4j.{Level, Logger}
 import com.google.gson.GsonBuilder
-import com.stock.dto.StockRealTimeData
 import org.apache.hadoop.conf.Configuration
 import org.apache.spark.SparkConf
-import com.stock.util.ScalaCommonUtil
-import com.stock.util.CommonUtil
 import scala.collection.mutable.ListBuffer
 import org.apache.hadoop.hbase.client.HTable
 import org.apache.hadoop.hbase.client.Put
 import java.util.ArrayList
+import com.stock.vo.StockRealTimeData
+import util.CommonUtil
+import com.stock.util.HbaseClientUtil
+import scala.collection.mutable.ListBuffer
+import com.stock.vo.StockAlertVo
 
 object HbaseService {
   
@@ -24,9 +26,6 @@ object HbaseService {
     val time1 = CommonUtil.getCurrentTime()
     val rowkey = code+"_"+time1
     stockrealTimeData.setRowkey(rowkey)
-    if("000723".equals(code)){
-      println(rowkey)
-    }
     HbaseClientUtil.insertByObject(stockrealTimeData, "test_rt", "rtf")
   }
   
@@ -37,16 +36,17 @@ object HbaseService {
   }
   
   def insertStockRTDataList(stockList:ListBuffer[StockRealTimeData]):String ={
-      val conf =ScalaCommonUtil.getconf
-      val table = new HTable(conf, "test_rt");
+      val conf =CommonUtil.getConf("1")
+      val table = new HTable(conf, "test_rt2");
       var putList = new ArrayList[Put]()
       for( stockrealtimedata <- stockList){
          if(stockrealtimedata.getDealnowShou()>0){
 	         val code = stockrealtimedata.getCode()
 	         val time = stockrealtimedata.getTime()
-		     val rowkey = code+"_"+time
+	         val currentDate = CommonUtil.getCurrentDate;
+		     val rowkey = code+"_"+currentDate+" "+time
 		     stockrealtimedata.setRowkey(rowkey)
-	         val put = HbaseClientUtil.obj2put(stockrealtimedata, "test_rt", "rtf")
+	         val put = HbaseClientUtil.obj2put(stockrealtimedata, "test_rt2", "rtf")
 	         putList.add(put) 
          }
       }
@@ -55,6 +55,17 @@ object HbaseService {
      
     "1" 
   }
+  
+  def getStockAlert():scala.collection.mutable.Map[String, StockAlertVo] ={
+    val list = HbaseClientUtil.getStockAlertList();
+    val returnMap =  scala.collection.mutable.Map[String,StockAlertVo]()
+    for(i <- 0 to list.size()-1){
+      returnMap += (list.get(i).getCode() -> list.get(i))
+    }
+    returnMap
+   
+  }
+  
   
   
 

@@ -6,12 +6,8 @@ import org.apache.spark.streaming.Seconds
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.kafka.KafkaUtils
 import com.stock.hbase.HbaseService
-import com.stock.util.ScalaCommonUtil
 import org.apache.log4j.{Level, Logger}
 import com.google.gson.GsonBuilder
-import com.stock.dto.StockRealTimeData
-import com.stock.util.CommonUtil
-import com.stock.hbase.HbaseClientUtil
 import org.apache.hadoop.hbase.HBaseConfiguration
 import org.apache.hadoop.hbase.client.HTable
 import org.apache.hadoop.hbase.client.HConnection
@@ -19,6 +15,8 @@ import org.apache.hadoop.hbase.client.HTableInterface
 import org.apache.hadoop.hbase.client.HConnectionManager
 import org.apache.hadoop.hbase.client.Put
 import org.apache.hadoop.hbase.util.Bytes
+import util.CommonUtil
+import com.stock.vo.StockRealTimeData
 
 object StockRT2 {
 
@@ -28,7 +26,7 @@ object StockRT2 {
  
  
  def openHBase(tablename:String) : Unit = {
-   val conf = ScalaCommonUtil.getconf;
+   val conf = CommonUtil.getConf("1");
    val hConnection = classOf[HConnection]
 	   hConnection.synchronized{
 	     if (connection == null){
@@ -50,13 +48,13 @@ object StockRT2 {
 //	  StreamingExamples.setStreamingLogLevels
 //	  Logger.getRootLogger.setLevel(Level.WARN)
  
-    val zkQuorum = ScalaCommonUtil.getPropertyValue("zkQuorum")
-    val topics = ScalaCommonUtil.getPropertyValue("topics")
-    val group = ScalaCommonUtil.getPropertyValue("group")
-    val numThreads = ScalaCommonUtil.getPropertyValue("numThreads")
-    val principal = ScalaCommonUtil.getPropertyValue("principal")
-	val keytabPath = ScalaCommonUtil.getPropertyValue("keytabPath")
-	val krbconfPath = ScalaCommonUtil.getPropertyValue("krbconfPath")
+    val zkQuorum = CommonUtil.getPropertyValue("zkQuorum")
+    val topics = CommonUtil.getPropertyValue("topics")
+    val group = CommonUtil.getPropertyValue("group")
+    val numThreads = CommonUtil.getPropertyValue("numThreads")
+    val principal = CommonUtil.getPropertyValue("principal")
+	val keytabPath = CommonUtil.getPropertyValue("keytabPath")
+	val krbconfPath = CommonUtil.getPropertyValue("krbconfPath")
 	System.setProperty("java.security.krb5.conf", krbconfPath)
   
     openHBase("");

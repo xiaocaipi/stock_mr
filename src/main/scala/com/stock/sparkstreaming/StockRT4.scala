@@ -10,9 +10,8 @@ import org.apache.log4j.{Level, Logger}
 import scala.collection.mutable.ListBuffer
 import util.CommonUtil
 import com.stock.vo.StockRealTimeData
-import com.stock.service.StockRTService
 
-object StockRT3 {
+object StockRT4 {
 
 
   def main(args: Array[String]) {
@@ -27,9 +26,6 @@ object StockRT3 {
 	val keytabPath = CommonUtil.getPropertyValue("keytabPath")
 	val krbconfPath = CommonUtil.getPropertyValue("krbconfPath")
     val sparkConf = new SparkConf().setAppName("stockRt").setMaster("local[8]")
-//    val sparkConf = new SparkConf().setAppName("stockRt")
-    
-//    sparkConf.set("java.security.krb5.realm", krbconfPath)
     System.setProperty("java.security.krb5.conf", krbconfPath)
     sparkConf.set("spark.yarn.keytab", keytabPath)
     sparkConf.set("spark.yarn.principal", principal)
@@ -37,12 +33,9 @@ object StockRT3 {
     
     
     val ssc = new StreamingContext(sparkConf, Seconds(3))
-	var alertMap = HbaseService.getStockAlert;
-	var alertBroad = ssc.sparkContext.broadcast(alertMap)
 	 
  	
  
-// 	initialHbase()
 	
     val topicMap = topics.split(",").map((_, 2.toInt)).toMap
     val numStreams = 4
@@ -57,17 +50,11 @@ object StockRT3 {
          var stockRealTimeDataList = new ListBuffer[StockRealTimeData]()
          partitionOfRecords.foreach(record => {
             var stockRealTimeData = HbaseService.convertMessage(record)
-            val isAlert = StockRTService.isNeedAlert(stockRealTimeData,alertBroad.value)
-            if(isAlert){
-              println(stockRealTimeData.getCode()+"--"+stockRealTimeData.getClose())
-              StockRTService.alert(stockRealTimeData)
-            }
 	        stockRealTimeDataList += stockRealTimeData
          })
-//         HbaseService.insertStockRTDataList(stockRealTimeDataList)
+         HbaseService.insertStockRTDataList(stockRealTimeDataList)
       })
-      alertMap = HbaseService.getStockAlert;
-      alertBroad = ssc.sparkContext.broadcast(alertMap)
+     
     })
     ssc.start()
     ssc.awaitTermination()
