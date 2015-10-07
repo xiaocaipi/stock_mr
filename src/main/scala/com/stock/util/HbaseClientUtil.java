@@ -1,6 +1,6 @@
 package com.stock.util;
 
-import java.text.SimpleDateFormat;
+import java.text.SimpleDateFormat; 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import com.stock.vo.StockAlertVo;
 import scala.reflect.internal.Trees.This;
 import service.BaseHbaseService;
 
-public class HbaseClientUtil  extends BaseHbaseService {
+public class HbaseClientUtil  extends BaseHbaseService { 
 	
 	
 	public static String insertByObject(Object obj, String tableTmp,
@@ -37,7 +37,7 @@ public class HbaseClientUtil  extends BaseHbaseService {
 		HbaseQuery query = new HbaseQuery();
 		List<HbaseColumnValueVo> list = new ArrayList<HbaseColumnValueVo>();
 		HbaseColumnValueVo vo = new HbaseColumnValueVo();
-		vo.setFamily("base_cf");
+		vo.setFamily("base_cf"); 
 		vo.setValue("2");
 		vo.setOp("3");
 		vo.setColumn("status");
