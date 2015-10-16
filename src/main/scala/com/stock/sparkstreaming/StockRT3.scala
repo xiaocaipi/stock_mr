@@ -64,7 +64,7 @@ object StockRT3 {
             }
 	        stockRealTimeDataList += stockRealTimeData
          })
-//         HbaseService.insertStockRTDataList(stockRealTimeDataList)
+         HbaseService.insertStockRTDataList(stockRealTimeDataList)
       })
       alertMap = HbaseService.getStockAlert;
       alertBroad = ssc.sparkContext.broadcast(alertMap)
