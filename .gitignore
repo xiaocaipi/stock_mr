@@ -1,2 +1,7 @@
+.*
+!.gitignore
 /target
-.classpath
+*/target/*
+/crawler_db_info
+/logs
+derby.log
