@@ -24,15 +24,20 @@ import org.apache.spark.SparkConf
  */
 object KafkaWordCount {
   def main(args: Array[String]) {
-    if (args.length < 4) {
-      System.err.println("Usage: KafkaWordCount <zkQuorum> <group> <topics> <numThreads>")
-      System.exit(1)
-    }
+//    if (args.length < 4) {
+//      System.err.println("Usage: KafkaWordCount <zkQuorum> <group> <topics> <numThreads>")
+//      System.exit(1)
+//    }
+    
+    val zkQuorum="172.19.81.206:2181";
+    val group="test_kafka_topic11"
+    val topics = "test_kafka_topic"
+    val numThreads=1
 
     StreamingExamples.setStreamingLogLevels()
 
-    val Array(zkQuorum, group, topics, numThreads) = args
-    val sparkConf = new SparkConf().setAppName("KafkaWordCount")
+//    val Array(zkQuorum, group, topics, numThreads) = args
+    val sparkConf = new SparkConf().setAppName("KafkaWordCount").setMaster("local[2]")
     val ssc = new StreamingContext(sparkConf, Seconds(2))
     ssc.checkpoint("checkpoint")
 
@@ -52,13 +57,19 @@ object KafkaWordCount {
 object KafkaWordCountProducer {
 
   def main(args: Array[String]) {
-    if (args.length < 4) {
-      System.err.println("Usage: KafkaWordCountProducer <metadataBrokerList> <topic> " +
-        "<messagesPerSec> <wordsPerMessage>")
-      System.exit(1)
-    }
+//    if (args.length < 4) {
+//      System.err.println("Usage: KafkaWordCountProducer <metadataBrokerList> <topic> " +
+//        "<messagesPerSec> <wordsPerMessage>")
+//      System.exit(1)
+//    }
 
-    val Array(brokers, topic, messagesPerSec, wordsPerMessage) = args
+//    val Array(brokers, topic, messagesPerSec, wordsPerMessage) = 
+      
+      val brokers= "172.19.81.202:9092,172.19.81.203:9092,172.19.81.204:9092,172.19.81.205:9092,172.19.81.206:9092"
+      val topic = "test_kafka_topic"
+      val messagesPerSec = 5
+      
+      val wordsPerMessage ="22"
 
     // Zookeeper connection properties
     val props = new HashMap[String, Object]()

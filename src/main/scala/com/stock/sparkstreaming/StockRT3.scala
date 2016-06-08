@@ -25,13 +25,13 @@ object StockRT3 {
     val principal = CommonUtil.getPropertyValue("principal")
     val keytabPath = CommonUtil.getPropertyValue("keytabPath")
     val krbconfPath = CommonUtil.getPropertyValue("krbconfPath")
-    val sparkConf = new SparkConf().setAppName("stockRt").setMaster("local[8]")
-    //    val sparkConf = new SparkConf().setAppName("stockRt")
+//    val sparkConf = new SparkConf().setAppName("stockRt").setMaster("local[8]")
+        val sparkConf = new SparkConf().setAppName("stockRt")
 
     //    sparkConf.set("java.security.krb5.realm", krbconfPath)
-    System.setProperty("java.security.krb5.conf", krbconfPath)
-    sparkConf.set("spark.yarn.keytab", keytabPath)
-    sparkConf.set("spark.yarn.principal", principal)
+//    System.setProperty("java.security.krb5.conf", krbconfPath)
+//    sparkConf.set("spark.yarn.keytab", keytabPath)
+//    sparkConf.set("spark.yarn.principal", principal)
     sparkConf.set("spark.default.parallelism", "16")
 
     val ssc = new StreamingContext(sparkConf, Seconds(3))
