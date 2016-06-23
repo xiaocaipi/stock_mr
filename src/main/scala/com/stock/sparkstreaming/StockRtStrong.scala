@@ -20,7 +20,7 @@ object StockRtStrong {
 
   def main(args: Array[String]) {
 
-    Logger.getRootLogger.setLevel(Level.WARN)
+    Logger.getRootLogger.setLevel(Level.ERROR)
 
     val zkQuorum = CommonUtil.getPropertyValue("zkQuorum")
     val topics = CommonUtil.getPropertyValue("topics")
@@ -45,9 +45,9 @@ object StockRtStrong {
     val lines = KafkaUtils.createStream(ssc, zkQuorum, group, topicMap).map(_._2)
 //    lines.print()
     
-    val codeclose = lines.map (HbaseService.convertMessage(_)).map( x=>(x.getCode,x.getClose))
-    codeclose.filter(_._1.equals("000831"))
-    .reduceByKeyAndWindow(windowsMethod(x=>x), Seconds(3), Seconds(3)).print()
+    val codeclose = lines.map (HbaseService.convertMessage(_)).map( x=>(x.getCode,x.getClose+"___"+x.getTime))
+    codeclose.filter(_._1.equals("000831")).print()
+//    .reduceByKeyAndWindow(windowsMethod(x=>x), Seconds(3), Seconds(3)).print()
     
 //    lines.foreachRDD((rdds: RDD[String])=> {
 //      
