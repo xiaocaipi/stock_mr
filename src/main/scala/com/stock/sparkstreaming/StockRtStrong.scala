@@ -20,7 +20,7 @@ object StockRtStrong {
 
   def main(args: Array[String]) {
 
-    Logger.getRootLogger.setLevel(Level.ERROR)
+    Logger.getRootLogger.setLevel(Level.WARN)
 
     val zkQuorum = CommonUtil.getPropertyValue("zkQuorum")
     val topics = CommonUtil.getPropertyValue("topics")
@@ -45,8 +45,9 @@ object StockRtStrong {
     val lines = KafkaUtils.createStream(ssc, zkQuorum, group, topicMap).map(_._2)
 //    lines.print()
     
-    val codeclose = lines.map (HbaseService.convertMessage(_)).map( x=>(x.getCode,new BigDecimal(x.getClose)))
-    codeclose.filter(_._1.equals("000831")).reduceByKeyAndWindow((a:BigDecimal,b:BigDecimal) => (a.divide(b)), Seconds(3), Seconds(3)).print()
+    val codeclose = lines.map (HbaseService.convertMessage(_)).map( x=>(x.getCode,x.getClose))
+    codeclose.filter(_._1.equals("000831"))
+    .reduceByKeyAndWindow(windowsMethod(x=>x), Seconds(3), Seconds(3)).print()
     
 //    lines.foreachRDD((rdds: RDD[String])=> {
 //      
@@ -68,6 +69,15 @@ object StockRtStrong {
 
     ssc.start()
     ssc.awaitTermination()
+  }
+  
+  def windowsMethod(f: Double => Double): (Double, Double) => Double = (x: Double, y: Double) => {
+    if(f(x)==0){
+       0
+    }else{
+       new BigDecimal(f(x)/f(y)).setScale(2,   BigDecimal.ROUND_HALF_UP).doubleValue()
+    }
+   
   }
 
 }
