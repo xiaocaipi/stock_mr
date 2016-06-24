@@ -8,15 +8,16 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.InputDStream
 import org.apache.spark.streaming.kafka.KafkaUtils
-import scala.reflect.ClassTag  
+import scala.reflect.ClassTag
 import org.apache.spark.streaming.kafka.KafkaCluster
+import org.apache.spark.streaming.kafka.HasOffsetRanges
   
 /** 
  * Created by knowpigxia on 15-8-5. 
  */  
 class KafkaManager(val kafkaParams: Map[String, String]) extends Serializable {  
   
-  private val kc = new KafkaCluster(kafkaParams)  
+  private val kc = new KafkaCluster(kafkaParams)
   
   /** 
    * 创建数据流 
