@@ -14,6 +14,7 @@ import util.CommonUtil
 import com.stock.util.HbaseClientUtil
 import scala.collection.mutable.ListBuffer
 import com.stock.vo.StockAlertVo
+import com.stock.vo.StockRtDiffWithZSVo
 
 object HbaseService {
   
@@ -55,6 +56,22 @@ object HbaseService {
      
     "1" 
   }
+  
+  
+  def insertStockRTDiffWithZS(stockRtDiffList:ListBuffer[StockRtDiffWithZSVo]):String ={
+      val conf =CommonUtil.getConf("1")
+      val table = new HTable(conf, "stock_rt_diff_zs");
+      var putList = new ArrayList[Put]()
+      for( stockRtDiff <- stockRtDiffList){
+	         val put = HbaseClientUtil.obj2put(stockRtDiff, "stock_rt_diff_zs", "rtf")
+	         putList.add(put) 
+      }
+      table.put(putList)
+      table.flushCommits();
+     
+    "1" 
+  }
+  
   
   def getStockAlert():scala.collection.mutable.Map[String, StockAlertVo] ={
     val list = HbaseClientUtil.getStockAlertList();
