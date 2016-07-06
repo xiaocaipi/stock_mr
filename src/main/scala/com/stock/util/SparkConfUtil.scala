@@ -18,7 +18,7 @@ object SparkConfUtil {
   var sqlContext: SQLContext = null
   var hiveContext: HiveContext = null
 
-  def getSparkConf(args: Array[String]): SparkConf = {
+  def getSparkConf(args: Array[String], appName: String, isLocal: Boolean): SparkConf = {
 
     if (sparkConf == null) {
       sparkConf = new SparkConf()
@@ -38,8 +38,11 @@ object SparkConfUtil {
         sparkConf.set("spark.akka.timeout", "900")
         sparkConf.set("spark.akka.frameSize", "1024")
 
-        sparkConf.setAppName("fraudGroup")
+      }
 
+      sparkConf.setAppName(appName)
+      if (isLocal) {
+        sparkConf.setMaster("local[2]")
       }
 
     }
