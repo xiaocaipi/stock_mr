@@ -6,7 +6,7 @@ object HomeWork {
   
   def main(args: Array[String]): Unit = {
     
-    val sparkConf = SparkConfUtil.getSparkConf(args,"text",true)
+    val sparkConf = SparkConfUtil.getSparkConf(args,"text",true,false)
     val sc = SparkConfUtil.getSparkContext
     val path ="/user/root/spark_source/users.txt"
     val users_hdfs_file =  sc.textFile(path)

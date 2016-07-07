@@ -15,6 +15,7 @@ import com.stock.util.HbaseClientUtil
 import scala.collection.mutable.ListBuffer
 import com.stock.vo.StockAlertVo
 import com.stock.vo.StockRtDiffWithZSVo
+import com.stock.vo.StockTimeSharingVo
 
 object HbaseService {
   
@@ -64,6 +65,21 @@ object HbaseService {
       var putList = new ArrayList[Put]()
       for( stockRtDiff <- stockRtDiffList){
 	         val put = HbaseClientUtil.obj2put(stockRtDiff, "stock_rt_diff_zs", "rtf")
+	         putList.add(put) 
+      }
+      table.put(putList)
+      table.flushCommits();
+     
+    "1" 
+  }
+  
+  
+  def insertStockTimeSharing(stockTimeSharingList:ListBuffer[StockTimeSharingVo]):String ={
+      val conf =CommonUtil.getConf("1")
+      val table = new HTable(conf, "stock_timesharing");
+      var putList = new ArrayList[Put]()
+      for( stockTimeSharing <- stockTimeSharingList){
+	         val put = HbaseClientUtil.obj2put(stockTimeSharing, "stock_timesharing", "rtf")
 	         putList.add(put) 
       }
       table.put(putList)

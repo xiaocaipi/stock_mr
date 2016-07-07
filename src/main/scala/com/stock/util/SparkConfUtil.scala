@@ -18,13 +18,11 @@ object SparkConfUtil {
   var sqlContext: SQLContext = null
   var hiveContext: HiveContext = null
 
-  def getSparkConf(args: Array[String], appName: String, isLocal: Boolean): SparkConf = {
+  def getSparkConf(args: Array[String], appName: String, isLocal: Boolean, isKerberos: Boolean): SparkConf = {
 
     if (sparkConf == null) {
       sparkConf = new SparkConf()
-      if (args == null || args.length == 0) {
-        sparkConf
-      } else {
+      if (isKerberos) {
         val principal = args(0)
         val keytabPath = args(1)
         val krbconfPath = args(2)
@@ -37,7 +35,8 @@ object SparkConfUtil {
         sparkConf.set("spark.yarn.principal", principal)
         sparkConf.set("spark.akka.timeout", "900")
         sparkConf.set("spark.akka.frameSize", "1024")
-
+      } else {
+        sparkConf
       }
 
       sparkConf.setAppName(appName)

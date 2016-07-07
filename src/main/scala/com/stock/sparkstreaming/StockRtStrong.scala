@@ -67,7 +67,7 @@ object StockRtStrong {
       //            .filter(_._1.equals("000831"))
       .reduceByKeyAndWindow((a1: String, a2: String) => {
         a1 + "|" + a2
-      }, Seconds(36), Seconds(3)).filter(_._2.split("\\|").length >= 10)
+      }, Seconds(120), Seconds(3)).filter(_._2.split("\\|").length >= 20)
       .map { x =>
         val array = x._2.split("\\|")
         val len = array.length
@@ -81,6 +81,7 @@ object StockRtStrong {
         val last9Close: String = array(len - 4).split("_")(0)
         val last21Close: String = array(len - 8).split("_")(0)
         val last30Close: String = array(len - 10).split("_")(0)
+        val last60Close: String = array(len - 20).split("_")(0)
 
         val diff3 = new BigDecimal(lastClose)
         //        .subtract(new BigDecimal(last3Close))
@@ -97,19 +98,28 @@ object StockRtStrong {
         val diff21 = new BigDecimal(lastClose)
         //        .subtract(new BigDecimal(last21Close))
         val diff21Percentage = diff21.divide(new BigDecimal(last21Close), 4, BigDecimal.ROUND_HALF_UP);
-
-        val diff30 = new BigDecimal(lastClose)
+        
+          val diff30 = new BigDecimal(lastClose)
         //        .subtract(new BigDecimal(last30Close))
         val diff30Percentage = diff30.divide(new BigDecimal(last30Close), 4, BigDecimal.ROUND_HALF_UP);
+
+        val diff60 = new BigDecimal(lastClose)
+        //        .subtract(new BigDecimal(last30Close))
+        val diff60Percentage = diff60.divide(new BigDecimal(last60Close), 4, BigDecimal.ROUND_HALF_UP);
+        
+        
 
         StreamingStockRtDto(x._1, thisTime, batch_id, new BigDecimal(zhangdiefudu),
           diff3Percentage,
           diff6Percentage,
           diff9Percentage,
           diff21Percentage,
-          diff30Percentage)
+          diff30Percentage,
+          diff60Percentage)
 
       }
+    
+    codeCloseDiff.filter { _.code.equals("399006")}.print()
 
     //caculate the diff with 399006
     val zs2Diff = codeCloseDiff.filter(_.code.equals("399006")).map { x => ("399006", x) }
@@ -124,7 +134,7 @@ object StockRtStrong {
       var diff_sum_6 = common.diff_6_s.divide(zs2.diff_6_s, 4, BigDecimal.ROUND_HALF_UP).doubleValue() - 1
       var diff_sum_9 = common.diff_9_s.divide(zs2.diff_9_s, 4, BigDecimal.ROUND_HALF_UP).doubleValue() - 1
       var diff_sum_21 = common.diff_21_s.divide(zs2.diff_21_s, 4, BigDecimal.ROUND_HALF_UP).doubleValue() - 1
-      var diff_sum_30 = common.diff_30_s.divide(zs2.diff_30_s, 4, BigDecimal.ROUND_HALF_UP).doubleValue() - 1
+      var diff_sum_30 = common.diff_60_s.divide(zs2.diff_60_s, 4, BigDecimal.ROUND_HALF_UP).doubleValue() - 1
 
       var vo = new StockRtDiffWithZSVo(common.code, common.time, common.batch_id,
         diff_sum_3,
@@ -134,10 +144,11 @@ object StockRtStrong {
         diff_sum_30)
       vo.setRowkey(common.code + "--" + common.batch_id)
       vo.setZhangdiefudu(common.zhangdiefudu.doubleValue())
+      vo.setDiff_60(common.diff_60_s.doubleValue()-1)
       (common.code, vo)
     }
 
-//        joinDiffDStream.filter(_._1.equals("000831")).print()
+//        joinDiffDStream.filter(_._1.equals("399006")).print()
 
     var sumStockRtDiffWithZSVo = (one: StockRtDiffWithZSVo, two: StockRtDiffWithZSVo) => {
       if (one != null) {
@@ -150,6 +161,7 @@ object StockRtStrong {
         one.setBatch_id(two.getBatch_id)
         one.setRowkey(two.getRowkey)
         one.setZhangdiefudu(two.getZhangdiefudu)
+        one.setDiff_60(two.getDiff_60)
       }
 
       one
@@ -180,18 +192,20 @@ object StockRtStrong {
 
     val updateStateDstream = joinDiffDStream.updateStateByKey[StockRtDiffWithZSVo](updateFunc)
 
-        updateStateDstream.filter(_._1.equals("399006")).print()
+//    updateStateDstream.filter(_._1.equals("399006")).print()
 
     val sortRdd = updateStateDstream.transform { rdd =>
       val rowRdd = rdd.map { x =>
         val vo = x._2
-        RowFactory.create(vo.getCode, vo.getDiff_sum_3, vo.getZhangdiefudu)
+        RowFactory.create(vo.getCode, vo.getDiff_sum_3, vo.getZhangdiefudu,vo.getDiff_60)
       }
 
       val schema = DataTypes.createStructType(Arrays.asList(
         DataTypes.createStructField("code", DataTypes.StringType, true),
         DataTypes.createStructField("diff_sum_3", DataTypes.DoubleType, true),
-        DataTypes.createStructField("zhangdiefudu", DataTypes.DoubleType, true)));
+        DataTypes.createStructField("zhangdiefudu", DataTypes.DoubleType, true),
+         DataTypes.createStructField("diff_60", DataTypes.DoubleType, true)
+        ));
 
       val sqlContext = SQLContextSingleton.getInstance(rdd.sparkContext);
 
@@ -205,7 +219,7 @@ object StockRtStrong {
 
     }
 
-//    sortRdd.print()
+    sortRdd.print()
 
     //    val shoudSortDstream = updateStateDstream
     //    .filter(_._2.getZhangdiefudu<3)
@@ -271,7 +285,8 @@ case class StreamingStockRtDto(code: String,
   diff_6_s: BigDecimal,
   diff_9_s: BigDecimal,
   diff_21_s: BigDecimal,
-  diff_30_s: BigDecimal)
+  diff_30_s: BigDecimal,
+  diff_60_s: BigDecimal)
 
 object SQLContextSingleton {
 
