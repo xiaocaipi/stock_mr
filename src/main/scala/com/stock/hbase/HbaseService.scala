@@ -32,8 +32,14 @@ object HbaseService {
   }
   
   def convertMessage(message:String):StockRealTimeData ={
+    val array = message.split("\\{")
+    var messageTmp =message
+    if(array.length ==2){
+      messageTmp = array(1)
+      messageTmp ="{"+messageTmp
+    }
     val gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-    val stockrealTimeData  = gson.fromJson(message,classOf[StockRealTimeData]);
+    val stockrealTimeData  = gson.fromJson(messageTmp,classOf[StockRealTimeData]);
     stockrealTimeData 
   }
   

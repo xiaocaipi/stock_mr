@@ -22,6 +22,7 @@ import java.util.Arrays
 import org.apache.spark.sql.RowFactory
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.Row
+import com.stock.util.SparkConfUtil
 
 object StockRtStrong {
 
@@ -40,6 +41,7 @@ object StockRtStrong {
     val checkPointPath = CommonUtil.getPropertyValue("checkPointPath")
 
     val sparkConf = new SparkConf().setAppName("stockRt").setMaster("local[2]")
+//    val sparkConf = SparkConfUtil.getSparkConf(args, "stockRt", false, false)
 
     sparkConf.set("spark.default.parallelism", "16")
 
