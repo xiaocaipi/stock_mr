@@ -31,12 +31,12 @@ object StockDayFeature {
     //    val isShoudCreateTable = args(1)
     //    val isGolbal = args(2)
 
-    val outputPath = "file:///tmp/spark/preparert/"
+    val outputPath = "/tmp/spark/preparert/"
     FileUtils.forceDeleteOnExit(new File(outputPath))
-    val conf = new SparkConf().setAppName("mysql2hive").setMaster("local[2]")
+    val conf = new SparkConf().setAppName("mysql2hive")
     //        val conf = new SparkConf().setAppName("mysql2hive")
     conf.set("spark.default.parallelism", "10")
-    conf.set("spark.yarn.executor.memoryOverhead", "1024")
+    conf.set("spark.yarn.executor.memoryOverhead", "512")
 
     val sc = new SparkContext(conf)
 
