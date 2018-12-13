@@ -35,6 +35,8 @@ object PrepareRTData {
 
   def main(args: Array[String]) {
 
+    FileUtils.forceDeleteOnExit(new File("/tmp/spark/preparert/"))
+
     //	logger.setLevel(Level.ERROR)
     //    if (args.length < 2) {
     //      logger.error("param is not correct")
@@ -209,7 +211,7 @@ object PrepareRTData {
     val ineterStringNoSchema = interStringRdd.map(_._3)
     val ineterString = interStringRdd.map(_._2)
 
-//    FileUtils.forceDeleteOnExit(new File("/tmp/spark/preparert/"))
+
 
     val equaalLableRdd:RDD[String] =interStringRdd.map{x=>(x._4,x._3)}.groupByKey.flatMap{x=>
       val label = x._1
@@ -217,10 +219,10 @@ object PrepareRTData {
       var list = scala.collection.mutable.ArrayBuffer[String]()
       x._2.foreach{f=>
         i=i+1
-
-        if(i<500){
+//每个类别只取500 条
+//        if(i<500){
           list += f
-        }
+//        }
       }
       list
     }
@@ -278,16 +280,18 @@ object PrepareRTData {
     var diffWithTodayDouble: java.lang.Double = diffWithToday.doubleValue()
     diffWithTodayDouble = diffWithTodayDouble * 100
     label = diffWithTodayDouble match {
-      case a if diffWithTodayDouble <= -8 => 0
-      case a if (diffWithTodayDouble <= -6 && diffWithTodayDouble > -8) => 1
-      case a if (diffWithTodayDouble <= -4 && diffWithTodayDouble > -6) => 2
-      case a if (diffWithTodayDouble <= -2 && diffWithTodayDouble > -4) => 3
-      case a if (diffWithTodayDouble <= -0 && diffWithTodayDouble > -2) => 4
-      case a if (diffWithTodayDouble <= 2 && diffWithTodayDouble > 0) => 5
-      case a if (diffWithTodayDouble <= 4 && diffWithTodayDouble > 2) => 6
-      case a if (diffWithTodayDouble <= 6 && diffWithTodayDouble > 4) => 7
-      case a if (diffWithTodayDouble <= 8 && diffWithTodayDouble > 6) => 8
-      case a if (diffWithTodayDouble > 8) => 9
+//      case a if diffWithTodayDouble <= -8 => 0
+//      case a if (diffWithTodayDouble <= -6 && diffWithTodayDouble > -8) => 1
+//      case a if (diffWithTodayDouble <= -4 && diffWithTodayDouble > -6) => 2
+//      case a if (diffWithTodayDouble <= -2 && diffWithTodayDouble > -4) => 3
+//      case a if (diffWithTodayDouble <= -0 && diffWithTodayDouble > -2) => 4
+//      case a if (diffWithTodayDouble <= 2 && diffWithTodayDouble > 0) => 5
+//      case a if (diffWithTodayDouble <= 4 && diffWithTodayDouble > 2) => 6
+//      case a if (diffWithTodayDouble <= 6 && diffWithTodayDouble > 4) => 7
+//      case a if (diffWithTodayDouble <= 8 && diffWithTodayDouble > 6) => 8
+//      case a if (diffWithTodayDouble > 8) => 9
+      case a if diffWithTodayDouble <= 0 => 0
+      case a if diffWithTodayDouble > 0 => 1
     }
 
     label

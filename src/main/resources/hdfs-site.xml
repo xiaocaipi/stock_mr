@@ -8,11 +8,11 @@
   </property>
   <property>
     <name>dfs.namenode.servicerpc-address</name>
-    <value>hadoop3:8022</value>
+    <value>cdh:8022</value>
   </property>
   <property>
     <name>dfs.https.address</name>
-    <value>hadoop3:50470</value>
+    <value>cdh:50470</value>
   </property>
   <property>
     <name>dfs.https.port</name>
@@ -20,7 +20,7 @@
   </property>
   <property>
     <name>dfs.namenode.http-address</name>
-    <value>hadoop3:50070</value>
+    <value>cdh:50070</value>
   </property>
   <property>
     <name>dfs.replication</name>
@@ -43,6 +43,10 @@
     <value>false</value>
   </property>
   <property>
+    <name>dfs.client.use.legacy.blockreader</name>
+    <value>false</value>
+  </property>
+  <property>
     <name>dfs.client.read.shortcircuit</name>
     <value>false</value>
   </property>
@@ -61,21 +65,5 @@
   <property>
     <name>dfs.datanode.hdfs-blocks-metadata.enabled</name>
     <value>true</value>
-  </property>
-  <property>
-    <name>dfs.block.access.token.enable</name>
-    <value>true</value>
-  </property>
-  <property>
-    <name>dfs.namenode.kerberos.principal</name>
-    <value>hdfs/_HOST@hadoop3</value>
-  </property>
-  <property>
-    <name>dfs.namenode.kerberos.internal.spnego.principal</name>
-    <value>HTTP/_HOST@hadoop3</value>
-  </property>
-  <property>
-    <name>dfs.datanode.kerberos.principal</name>
-    <value>hdfs/_HOST@hadoop3</value>
   </property>
 </configuration>
