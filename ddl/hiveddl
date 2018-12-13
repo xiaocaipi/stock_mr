@@ -1,0 +1,19 @@
+create database ods;
+use ods;
+drop table base_stock;
+create external table base_stock(id string,
+code string,
+open string,
+close string,
+high string,
+low string,
+volume string,
+date string,
+name string,
+zhangdie string,
+zhangdiefudu string,
+dealmoney string,
+huanshoulv string)
+stored as orc location '/hadoop/stock/base/';
+
+ set hive.cli.print.header=true;
